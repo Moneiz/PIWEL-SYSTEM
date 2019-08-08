@@ -1,0 +1,5 @@
+To try it, use VirtualBox and create new VM based on "Others" (not Windows or Linux OS).
+Let 64 Mb for RAM and it's not necessary to create an virtual hard disk.
+Finally, you just have to launch it and open the ISO file named mykernel.iso in this reposity.
+
+Have fun !
