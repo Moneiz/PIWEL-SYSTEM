@@ -1,6 +1,8 @@
+#include "types.h"
+
 void printf(char* str){
 
-	unsigned short* video_memory = (unsigned short*) 0xB8000;
+	uint16_t* video_memory = (uint16_t*) 0xB8000;
 	for(int i = 0; str[i] != '\0';i++){
 		video_memory[i] = (video_memory[i]& 0xFF00) |  str[i];
 	}
@@ -18,7 +20,7 @@ extern "C" void callConstructors(){
 	}
 }
 
-extern "C" void kernelMain(void* multiboot_structure, unsigned int magicnumber){
+extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber){
 
 	printf("Hello World!");
 
