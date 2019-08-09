@@ -22,7 +22,7 @@ class Port8BitSlow : public Port8Bit{
     public:
         Port8BitSlow(uint16_t port);
         ~Port8BitSlow();
-        virtual uint8_t Read();
+        virtual void Write(uint8_t data);
 
 };
 class Port16Bit : public Port{
