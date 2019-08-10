@@ -5,11 +5,22 @@
 #include "port.h"
 #include "gdt.h"
 
-class InterruptManager{
+class InterruptManager;
 
+class InterruptHandler{
     protected:
+        uint8_t interruptNumber;
+        InterruptManager* interruptManager;
 
-        
+        InterruptHandler(uint8_t interruptNumber, InterruptManager* interruptManager);
+        ~InterruptHandler();
+    public:
+        virtual uint32_t HandlerInterrupt(uint32_t esp);
+};
+
+class InterruptManager{
+    friend class InterruptHandler;
+    protected:
 
         struct GateDescriptor{
             uint16_t handlerAddressLowBits;
@@ -20,6 +31,7 @@ class InterruptManager{
         } __attribute__((packed));
 
         static GateDescriptor InterruptDescriptorTable[256];
+        InterruptHandler* handlers[256];
 
         struct interruptDescriptorTablePointer
         {
@@ -57,6 +69,7 @@ class InterruptManager{
         static void IgnoreInterruptRequest();
         static void HandlerInterruptRequest0x00();
         static void HandlerInterruptRequest0x01();
+        static void HandlerInterruptRequest0x0C();
 };
 
 #endif

@@ -2,6 +2,22 @@
 
 void printf(char* str);
 
+
+
+InterruptHandler::InterruptHandler(uint8_t interruptNumber, InterruptManager* interruptManager){
+    this->interruptManager = interruptManager;
+    this->interruptNumber = interruptNumber;
+    interruptManager->handlers[interruptNumber] = this;
+}
+InterruptHandler::~InterruptHandler(){
+    if(interruptManager->handlers[interruptNumber] == this){
+        interruptManager->handlers[interruptNumber] = 0;
+    }
+}
+uint32_t InterruptHandler::HandlerInterrupt(uint32_t esp){
+    return esp;   
+}
+
 InterruptManager::GateDescriptor InterruptManager::InterruptDescriptorTable[256];
 
 InterruptManager* InterruptManager::ActiveInterruptManager = 0;
@@ -28,10 +44,12 @@ picSlaveCommand(0xA0), picSlaveData(0xA1)
     uint16_t CodeSegment = gdt->CodeSegmentSelector();
     const uint8_t IDT_INTERRUPT_GATE = 0xE;
     for(uint16_t i = 0; i < 256;i++){
+        handlers[i] = 0;
         SetInterruptDescriptorTableEntry(i,CodeSegment,&IgnoreInterruptRequest,0,IDT_INTERRUPT_GATE);
     }
     SetInterruptDescriptorTableEntry(0x20,CodeSegment,&HandlerInterruptRequest0x00,0,IDT_INTERRUPT_GATE);
     SetInterruptDescriptorTableEntry(0x21,CodeSegment,&HandlerInterruptRequest0x01,0,IDT_INTERRUPT_GATE);
+    SetInterruptDescriptorTableEntry(0x2C,CodeSegment,&HandlerInterruptRequest0x0C,0,IDT_INTERRUPT_GATE);
 
     picMasterCommand.Write(0X11);
     picSlaveCommand.Write(0X11);
@@ -85,8 +103,19 @@ uint32_t InterruptManager::handlerInterrupt(uint8_t interruptNumber,uint32_t esp
     return esp;
 }
 uint32_t InterruptManager::doHandlerInterrupt(uint8_t interruptNumber,uint32_t esp){
-    printf("INT");
+    
+    if(handlers[interruptNumber] != 0){
+        esp = handlers[interruptNumber]->HandlerInterrupt(esp);
+    }
 
+    else if(interruptNumber != 0x20){
+        char* warn = "INTERUPTION NON-PRISE EN CHARGE :";
+        char* hex = "0123456789ABCDEF";
+        warn[22] = hex[(interruptNumber >> 4) & 0x0F] ;
+        warn[23] = hex[(interruptNumber) & 0x0F] ;
+        printf(warn);
+
+    }
     if(0x20 <= interruptNumber && interruptNumber <0x30){
         picMasterCommand.Write(0x20);
         if(0x28 <= interruptNumber){

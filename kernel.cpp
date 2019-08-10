@@ -1,6 +1,9 @@
 #include "types.h"
 #include "gdt.h"
 #include "interrupts.h"
+#include "keyboard.h"
+#include "include/driver.h"
+#include "mouse.h"
 
 void printf(char* str){
 
@@ -62,9 +65,15 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber){
 	GlobalDescriptorTable gdt;
 	printf("Done !");
 
+
 	InterruptManager interrupts(&gdt);
 
+	DriverManager driverManager;
 
+	KeyboardDriver keyboard(&interrupts);
+	//driverManager.AddDriver(&keyboard);
+	MouseDriver mouse(&interrupts);
+	//driverManager.AddDriver(&mouse);
 
 	interrupts.Activate();
 	
