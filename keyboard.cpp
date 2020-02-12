@@ -1,12 +1,30 @@
 #include "keyboard.h"
 
 void printf(char* str);
+void printfHex(uint8_t);
 
-KeyboardDriver::KeyboardDriver(InterruptManager* manager) : 
+KeyboardEventHandler::KeyboardEventHandler(){
+
+}
+void KeyboardEventHandler::OnKeyDown(char){
+
+}
+void KeyboardEventHandler::OnKeyUp(char){
+
+}
+
+KeyboardDriver::KeyboardDriver(InterruptManager* manager, KeyboardEventHandler* handler) : 
 InterruptHandler(0x21,manager),
 dataport(0x60),
 commandport(0x64)
 {
+    this->handler = handler;
+}
+KeyboardDriver::~KeyboardDriver(){
+    
+}
+
+void KeyboardDriver::Activate(){
     while(commandport.Read() & 0x1){
         dataport.Read();
     
@@ -18,25 +36,23 @@ commandport(0x64)
     dataport.Write(status);
     dataport.Write(0xF4);
 }
-KeyboardDriver::~KeyboardDriver(){
-    
-}
+
 uint32_t KeyboardDriver::HandlerInterrupt(uint32_t esp){
 
     uint8_t key = dataport.Read();
 
+    if(handler == 0){
+        return esp;
+    }
+
     if(key < 0x80){
         switch (key)
         {
-        case 0xFA: break;
+        case 0x39: asm("hlt" : : );
         case 0x45: case 0xC5:break;
 
         default:
-            char* warn = "INTERRUPTION DU CLAVIER    \n";
-            char* hex = "0123456789ABCDEF";
-            warn[24] = hex[(key >> 4) & 0x0F] ;
-            warn[25] = hex[(key) & 0x0F] ;
-            printf(warn);
+            printfHex(key);
             break;
         }
     }   
