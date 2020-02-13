@@ -66,18 +66,19 @@ namespace drivers{
     }
     uint8_t* VideoGraphicsArray::GetFrameBufferSegment(){
         graphicsControllerIndexPort.Write(0x06);
-        uint8_t segmentNumber = ((graphicsControllerDataPort.Read() >> 2) & 0x03);
+        uint8_t segmentNumber = graphicsControllerDataPort.Read() & (3<<2);
         switch(segmentNumber){
             default:
-            case 0: return (uint8_t*) 0x00000;
-            case 1: return (uint8_t*) 0xA0000;
-            case 2: return (uint8_t*) 0xB0000;
-            case 3: return (uint8_t*) 0xB8000;
+            case 0<<2: return (uint8_t*) 0x00000;
+            case 1<<2: return (uint8_t*) 0xA0000;
+            case 2<<2: return (uint8_t*) 0xB0000;
+            case 3<<2: return (uint8_t*) 0xB8000;
 
         }
     }
 
-    void VideoGraphicsArray::PutPixel(uint32_t x,uint32_t y,uint8_t colorIndex){
+    void VideoGraphicsArray::PutPixel(int32_t x,int32_t y,uint8_t colorIndex){
+        if(x < 0 || 320 <= x || y < 0 || 200 <= y) return;
         uint8_t* pixelAddress = GetFrameBufferSegment() + 320*y + x;
         *pixelAddress = colorIndex;
     }
@@ -105,6 +106,8 @@ namespace drivers{
         }
         else if(r == 0xA8 && g == 0xA8 && b==0xA8){
             return 0x07;
+        }else{
+            return 0x3F;
         }
     }
 
@@ -139,10 +142,16 @@ namespace drivers{
         WriteRegisters(mode_320x200x256);
         return true;
     }
-    void VideoGraphicsArray::PutPixel(uint32_t x,uint32_t y,uint8_t r,uint8_t g,uint8_t b){
+    void VideoGraphicsArray::PutPixel(int32_t x,int32_t y,uint8_t r,uint8_t g,uint8_t b){
         PutPixel(x,y,GetColorIndex(r,g,b));
     }
    
-
+    void VideoGraphicsArray::FillRectangle(uint32_t x, uint32_t y, uint32_t w, uint32_t h,uint8_t r,uint8_t g, uint8_t b){
+        for(int32_t Y = y; Y < y+h; Y++){
+            for(int32_t X = x; X < x+w; X++){
+                PutPixel(X,Y,r,g,b);
+            }
+        }
+    }
 
 }

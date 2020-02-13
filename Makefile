@@ -12,6 +12,9 @@ objects = obj/loader.o \
 		obj/drivers/keyboard.o \
 		obj/drivers/mouse.o \
 		obj/drivers/vga.o \
+		obj/gui/widget.o \
+		obj/gui/window.o \
+		obj/gui/desktop.o \
 		obj/kernel.o
 
 run: mykernel.iso
@@ -35,7 +38,7 @@ mykernel.iso: mykernel.bin
 	mkdir iso
 	mkdir iso/boot
 	mkdir iso/boot/grub
-	cp $< iso/boot/
+	cp mykernel.bin iso/boot/
 	echo 'set timeout=0' >> iso/boot/grub/grub.cfg
 	echo 'set default=0' >> iso/boot/grub/grub.cfg
 	echo '' >> iso/boot/grub/grub.cfg
@@ -46,7 +49,7 @@ mykernel.iso: mykernel.bin
 	echo '' >> iso/boot/grub/grub.cfg
 	echo '' >> iso/boot/grub/grub.cfg
 	echo '' >> iso/boot/grub/grub.cfg
-	grub-mkrescue --output=$@ iso
+	grub-mkrescue --output=mykernel.iso iso
 	rm -rf iso
 
 

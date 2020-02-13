@@ -6,10 +6,13 @@
 #include <drivers/mouse.h>
 #include <drivers/driver.h>
 #include <drivers/vga.h>
+#include <gui/desktop.h>
+#include <gui/window.h>
 
 using namespace common;
 using namespace drivers;
 using namespace hardwarecom;
+using namespace gui;
 
 void printf(char* str){
 
@@ -124,15 +127,13 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber){
 
 
 	InterruptManager interrupts(0x20,&gdt);
-
+	Desktop desktop(320, 200, 0x00, 0x00, 0xA8);
 	DriverManager driverManager;
 
-		PrintfKeyboardEventHandler kHandler;
-		KeyboardDriver keyboard(&interrupts,&kHandler);
+		KeyboardDriver keyboard(&interrupts,&desktop);
 		driverManager.AddDriver(&keyboard);
 
-		MouseToConsole mouseHandler;
-		MouseDriver mouse(&interrupts, &mouseHandler);
+		MouseDriver mouse(&interrupts, &desktop);
 		driverManager.AddDriver(&mouse);
 
 		PeripheralComponentInterconnectController PCIController;
@@ -142,20 +143,16 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber){
 
 		driverManager.ActivateAll();
 
+	vga.SetMode(320,200,8);
+	Window win1(&desktop, 10, 10, 20, 20, 0xA8, 0x00, 0x00);
+	desktop.AddChild(&win1);
+	Window win2(&desktop, 40, 15,30,30,0x00, 0xA8, 0x00);
+	desktop.AddChild(&win2);
 		
 
 	interrupts.Activate();
-	
-	vga.SetMode(320,200,8);
-	for(uint32_t y = 0; y < 200; y++){
-		for(uint32_t x = 0; x < 320; x++){
-			if ((x-100)*(x-100)-2 <= -y+100 && -y+100 <= (x-100)*(x-100)+2){
-				vga.PutPixel(x,y,0xA8,0x00,0x00);
-			}else{
-				vga.PutPixel(x,y,0x00,0x00,0xA8);
-			}
-		}
-	}
 
-	while(1);
+	while(1){
+		desktop.Draw(&vga);
+	}
 }
