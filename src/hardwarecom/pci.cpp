@@ -87,7 +87,7 @@ namespace hardwarecom
         result.function = function;
 
         result.vendor_id = Read(bus, device, function, 0x00);
-        result.device = Read(bus, device, function, 0x02);
+        result.device_id = Read(bus, device, function, 0x02);
 
         result.class_id = Read(bus, device, function, 0x0b);
         result.subclass_id = Read(bus, device, function, 0x0a);
@@ -95,5 +95,7 @@ namespace hardwarecom
 
         result.revision = Read(bus, device, function, 0x08);
         result.interrupt = Read(bus, device, function, 0x3C);
+    
+        return result;
     }
 }
