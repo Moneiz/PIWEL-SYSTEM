@@ -5,6 +5,7 @@
 #include <drivers/keyboard.h>
 #include <drivers/mouse.h>
 #include <drivers/driver.h>
+#include <drivers/vga.h>
 
 using namespace common;
 using namespace drivers;
@@ -135,7 +136,9 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber){
 		driverManager.AddDriver(&mouse);
 
 		PeripheralComponentInterconnectController PCIController;
-		PCIController.SelectDrivers(&driverManager);
+		PCIController.SelectDrivers(&driverManager, &interrupts);
+
+		VideoGraphicsArray vga;
 
 		driverManager.ActivateAll();
 
@@ -143,5 +146,16 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber){
 
 	interrupts.Activate();
 	
+	vga.SetMode(320,200,8);
+	for(uint32_t y = 0; y < 200; y++){
+		for(uint32_t x = 0; x < 320; x++){
+			if ((x-100)*(x-100)-2 <= -y+100 && -y+100 <= (x-100)*(x-100)+2){
+				vga.PutPixel(x,y,0xA8,0x00,0x00);
+			}else{
+				vga.PutPixel(x,y,0x00,0x00,0xA8);
+			}
+		}
+	}
+
 	while(1);
 }

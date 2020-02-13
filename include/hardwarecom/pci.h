@@ -8,6 +8,18 @@
 
 namespace hardwarecom{
 
+    enum BaseAddressRegisterType{
+        MemoryMapping = 0,
+        InputOutput = 1
+    };
+    class BaseAddressRegister{
+        public:
+            bool prefetchable;
+            common::uint8_t* address;
+            common::uint32_t size;
+            BaseAddressRegisterType type;
+    };
+
     class PCIDeviceDescriptor{
         public:
             common::uint32_t portBase;
@@ -40,8 +52,10 @@ namespace hardwarecom{
             void Write(common::uint16_t bus, common::uint16_t device, common::uint16_t function,common::uint32_t registeroffset, common::uint32_t value);
             bool DeviceHasFunction(common::uint16_t bus, common::uint16_t device);
 
-            void SelectDrivers(drivers::DriverManager* driverManager);
+            void SelectDrivers(drivers::DriverManager* driverManager, InterruptManager* interrupt);
+            drivers::Driver* GetDriver(PCIDeviceDescriptor dev, InterruptManager* interrupt);
             PCIDeviceDescriptor GetDeviceDescriptor(common::uint16_t bus, common::uint16_t device, common::uint16_t function);
+            BaseAddressRegister GetBaseAddressRegister(common::uint16_t bus, common::uint16_t device, common::uint16_t function, common::uint16_t bar);
     };
 }
 
