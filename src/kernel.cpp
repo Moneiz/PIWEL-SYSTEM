@@ -152,7 +152,10 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber){
 
 	interrupts.Activate();
 
-	while(1){
-		desktop.Draw(&vga);
-	}
+	//while(1){
+		//desktop.Draw(&vga);
+		//asm("jmp _stop"::);
+	//}
+	Port16Bit shutdown(0x4004);
+	shutdown.Write(0x3400);
 }

@@ -40,6 +40,10 @@ namespace hardwarecom{
     Port(portnumber){
 
     }
+    Port16Bit::~Port16Bit
+    (){
+        
+    }
     void Port16Bit::Write(uint16_t data){
         __asm__ volatile("outw %0, %1" : : "a" (data), "Nd" (portnumber));
     }
