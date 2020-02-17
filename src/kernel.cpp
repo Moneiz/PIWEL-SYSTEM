@@ -1,5 +1,6 @@
 #include <common/types.h>
-#include "gdt.h"
+#include <gdt.h>
+#include <scheduling.h>
 #include <hardwarecom/interrupts.h>
 #include <hardwarecom/pci.h>
 #include <drivers/keyboard.h>
@@ -8,6 +9,8 @@
 #include <drivers/vga.h>
 #include <gui/desktop.h>
 #include <gui/window.h>
+
+//#define GRAPHMODE
 
 using namespace common;
 using namespace drivers;
@@ -61,6 +64,17 @@ void printfHex(uint8_t key){
 	foo[0] = hex[(key>>4) & 0xF];
 	foo[1] = hex[(key&0xF)];
 	printf(foo);
+}
+
+void TaskA(){
+	while(true){
+		printf("A");
+	}
+}
+void TaskB(){
+	while(true){
+		printf("B");
+	}
 }
 
 class PrintfKeyboardEventHandler : public KeyboardEventHandler{
@@ -125,15 +139,32 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber){
 	GlobalDescriptorTable gdt;
 	printf("Done !");
 
+	TaskManager taskManager;
+	Task task1(&gdt, TaskA);
+	Task task2(&gdt, TaskB);
+	taskManager.AddTask(&task1);
+	taskManager.AddTask(&task2);
+	InterruptManager interrupts(0x20, &gdt, &taskManager);
 
-	InterruptManager interrupts(0x20,&gdt);
-	Desktop desktop(320, 200, 0x00, 0x00, 0xA8);
+	#ifdef GRAPHMODE
+		Desktop desktop(320, 200, 0x00, 0x00, 0xA8);
+	#endif
 	DriverManager driverManager;
 
-		KeyboardDriver keyboard(&interrupts,&desktop);
+		#ifdef GRAPHMODE
+			KeyboardDriver keyboard(&interrupts,&desktop);
+		#else
+			PrintfKeyboardEventHandler kHandler;
+			KeyboardDriver keyboard(&interrupts, &kHandler);
+		#endif
 		driverManager.AddDriver(&keyboard);
 
-		MouseDriver mouse(&interrupts, &desktop);
+		#ifdef GRAPHMODE
+			MouseDriver mouse(&interrupts, &desktop);
+		#else
+			MouseToConsole mouseHandler;
+			MouseDriver mouse(&interrupts, &mouseHandler);
+		#endif
 		driverManager.AddDriver(&mouse);
 
 		PeripheralComponentInterconnectController PCIController;
@@ -143,19 +174,19 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber){
 
 		driverManager.ActivateAll();
 
-	vga.SetMode(320,200,8);
-	Window win1(&desktop, 10, 10, 20, 20, 0xA8, 0x00, 0x00);
-	desktop.AddChild(&win1);
-	Window win2(&desktop, 40, 15,30,30,0x00, 0xA8, 0x00);
-	desktop.AddChild(&win2);
-		
+	#ifdef GRAPHMODE
+		vga.SetMode(320,200,8);
+		Window win1(&desktop, 10, 10, 20, 20, 0xA8, 0x00, 0x00);
+		desktop.AddChild(&win1);
+		Window win2(&desktop, 40, 15,30,30,0x00, 0xA8, 0x00);
+		desktop.AddChild(&win2);
+	#endif
 
 	interrupts.Activate();
 
-	//while(1){
-		//desktop.Draw(&vga);
-		//asm("jmp _stop"::);
-	//}
-	Port16Bit shutdown(0x4004);
-	shutdown.Write(0x3400);
+	while(1){
+		#ifdef GRAPHMODE
+			desktop.Draw(&vga);
+		#endif
+	}
 }

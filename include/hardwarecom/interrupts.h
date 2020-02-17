@@ -4,6 +4,7 @@
 #include <common/types.h>
 #include <hardwarecom/port.h>
 #include <gdt.h>
+#include <scheduling.h>
 
 namespace hardwarecom{
 
@@ -25,7 +26,7 @@ namespace hardwarecom{
         protected:
             static InterruptManager* ActiveInterruptManager;
             InterruptHandler* handlers[256];
-
+            TaskManager *taskManager;
             struct GateDescriptor{
                 common::uint16_t handlerAddressLowBits;
                 common::uint16_t gdt_codeSegmentSelector;
@@ -82,7 +83,7 @@ namespace hardwarecom{
         
 
         public:
-            InterruptManager(common::uint16_t HardwareInterruptOffset, GlobalDescriptorTable* gdt);
+            InterruptManager(common::uint16_t HardwareInterruptOffset, GlobalDescriptorTable* gdt, TaskManager* taskManager);
             ~InterruptManager();
             common::uint16_t HardwareInterruptOffset();
             void Activate();

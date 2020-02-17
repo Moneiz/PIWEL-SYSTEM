@@ -47,7 +47,7 @@ namespace drivers{
     uint32_t KeyboardDriver::HandlerInterrupt(uint32_t esp){
 
         uint8_t key = dataport.Read();
-
+        Port16Bit shutdown(0x4004);
         if(handler == 0){
             return esp;
         }
@@ -55,7 +55,10 @@ namespace drivers{
         if(key < 0x80){
             switch (key)
             {
-            
+                case 0x01 : 
+                
+            	shutdown.Write(0x3400);
+                break;
                 case 0x02: handler->OnKeyDown('1'); break;
                 case 0x03: handler->OnKeyDown('2'); break;
 

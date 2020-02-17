@@ -15,6 +15,7 @@
 .global _ZN11hardwarecom16InterruptManager27HandlerInterruptRequest\num\()Ev
 _ZN11hardwarecom16InterruptManager27HandlerInterruptRequest\num\()Ev:
     movb $\num + IRQ_BASE, (interruptnumber)
+    pushl $0
     jmp int_bottom
 .endm
 
@@ -37,23 +38,31 @@ HandleInterruptRequest 0x0F
 
 int_bottom:
 
-    pusha 
-    pushl %ds
-    pushl %es
-    pushl %fs
-    pushl %gs
+    pushl %ebp
+    pushl %edi
+    pushl %esi
+
+    pushl %edx
+    pushl %ecx
+    pushl %ebx
+    pushl %eax
 
     pushl %esp
     push (interruptnumber)
     call _ZN11hardwarecom16InterruptManager16handlerInterruptEhj
-    add %esp,6
-    movl %eax, %esp
+    
+    mov %eax, %esp
 
-    popl %gs
-    popl %fs
-    popl %es
-    popl %ds
-    popa
+    popl %eax
+    popl %ebx
+    popl %ecx
+    popl %edx
+
+    popl %esi
+    popl %edi
+    popl %ebp
+
+    add $4,%esp
 
     iret
 _ZN11hardwarecom16InterruptManager22IgnoreInterruptRequestEv:

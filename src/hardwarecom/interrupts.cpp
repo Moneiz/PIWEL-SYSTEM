@@ -39,12 +39,12 @@ namespace hardwarecom{
         InterruptDescriptorTable[interruptNumber].reserved = 0;
         InterruptDescriptorTable[interruptNumber].access = IDT_DESC_PRESENT | DescriptorType | ((DescriptorPrivilegeLevel&3)<<5);
     }
-    InterruptManager::InterruptManager(uint16_t hardwareInterruptOffset, GlobalDescriptorTable* gdt) :
+    InterruptManager::InterruptManager(uint16_t hardwareInterruptOffset, GlobalDescriptorTable* gdt, TaskManager* taskManager) :
     picMasterCommand(0x20),picMasterData(0x21),
     picSlaveCommand(0xA0), picSlaveData(0xA1)
     {
         this->hardwareInterruptOffset = hardwareInterruptOffset;
-        
+        this->taskManager = taskManager;
         uint32_t CodeSegment = gdt->CodeSegmentSelector();
         const uint8_t IDT_INTERRUPT_GATE = 0xE;
         for(uint8_t i = 255; i > 0;i--){
@@ -133,6 +133,10 @@ namespace hardwarecom{
             printf("INTERUPTION NON-GÉRÉ 0x");
             printfHex(interruptNumber);
         }
+        if(interruptNumber == hardwareInterruptOffset){
+            esp = (uint32_t) taskManager->Schedule((CPUState*)esp);
+        }
+
         if(hardwareInterruptOffset <= interruptNumber && interruptNumber <hardwareInterruptOffset+16){
             picMasterCommand.Write(0x20);
             if(hardwareInterruptOffset +8 <= interruptNumber){
