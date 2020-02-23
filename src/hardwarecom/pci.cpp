@@ -1,4 +1,5 @@
 #include <hardwarecom/pci.h>
+#include <drivers/amd_am79c973.h>
 
 using namespace common;
 using namespace drivers;
@@ -64,12 +65,14 @@ namespace hardwarecom
                         if(bar.address && (bar.type == InputOutput)){
                             dev.portBase = (uint32_t)bar.address;
                         }
-                        Driver* driver = GetDriver(dev, interrupt);
-                        if(driver != 0){
-                            driverManager->AddDriver(driver);
-                        }
+                        
                     }
-
+                    
+                    Driver* driver = GetDriver(dev, interrupt);
+                    if(driver != 0){
+                        driverManager->AddDriver(driver);
+                    }
+                    /*
                      printf("\nPCI BUS ");
                      printfHex(bus & 0xFF);
                      
@@ -86,7 +89,7 @@ namespace hardwarecom
                      printf(", DEVICE ");
                      printfHex((dev.device_id & 0xFF00)>>8);
                      printfHex((dev.device_id & 0xFF));
-
+                    */
 
                  }
              }
@@ -126,16 +129,21 @@ namespace hardwarecom
     }
 
     Driver* PeripheralComponentInterconnectController::GetDriver(PCIDeviceDescriptor dev, InterruptManager* interrupt){
-        
+        Driver *driver = 0;
         switch(dev.vendor_id){
             case 0x1022:
                 switch(dev.device_id){
                     case 0x2000:
+                        driver = (amd_am79c973*)MemoryManager::activeMemoryManager->malloc(sizeof(amd_am79c973));
+                        if(driver != 0)
+                            new (driver) amd_am79c973(&dev, interrupt);
+                        printf("am79c973 identified !\n");
+                        return driver;
                         break;
                 }
                 break;
             case 0x8086:
-                printf("INTEL 8086");
+                //printf("INTEL 8086");
                 break;
         }
         switch(dev.class_id){
@@ -147,7 +155,7 @@ namespace hardwarecom
                 break;
         }
 
-        return 0;
+        return driver;
     }
 
     PCIDeviceDescriptor PeripheralComponentInterconnectController::GetDeviceDescriptor(uint16_t bus, uint16_t device, uint16_t function) {

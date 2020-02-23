@@ -6,6 +6,8 @@
 #include <drivers/driver.h>
 #include <hardwarecom/interrupts.h>
 
+#include <mm.h>
+
 namespace hardwarecom{
 
     enum BaseAddressRegisterType{
