@@ -153,15 +153,12 @@ namespace hardwarecom{
     uint32_t InterruptManager::doHandlerInterrupt(uint8_t interruptNumber,uint32_t esp){
         
         if(handlers[interruptNumber] != 0){
-            printf("INTERUPTION GERE 0x");
-
-            printfHex(interruptNumber);
             esp = handlers[interruptNumber]->HandlerInterrupt(esp);
         }
 
         else if(interruptNumber != hardwareInterruptOffset){
-            printf("INTERUPTION NON-GERE 0x");
-            printfHex(interruptNumber);
+            //printf("INTERUPTION NON-GERE 0x");
+            //printfHex(interruptNumber);
         }
         if(interruptNumber == hardwareInterruptOffset){
             esp = (uint32_t) taskManager->Schedule((CPUState*)esp);

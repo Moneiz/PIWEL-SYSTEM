@@ -73,9 +73,6 @@ busControlRegisterDataPort(dev->portBase + 0x16)
     registerAddressPort.Write(2);
     registerDataPort.Write(((uint32_t)(&initBlock)>>16) & 0xFFFF);
 
-
-    printf("activated");
-
 }
 amd_am79c973::~amd_am79c973(){
 

@@ -10,6 +10,7 @@
 #include <drivers/vga.h>
 #include <gui/desktop.h>
 #include <gui/window.h>
+#include <utils/subprgm.h>
 
 //#define GRAPHMODE
 
@@ -82,7 +83,18 @@ void TaskB(){
 
 class PrintfKeyboardEventHandler : public KeyboardEventHandler{
 	public:
+	char buffer[256];
+	uint8_t indexBuffer=0;
 	void OnKeyDown(char c){
+		if(c == '\n'){
+			indexBuffer = 0;
+			utils::shell(buffer);
+			buffer[0] = '\0';
+		}else
+		{
+			buffer[indexBuffer++] = c;
+			buffer[indexBuffer] = '\0';
+		}
 		char* foo = " ";
 		foo[0] = c;
 		printf(foo);

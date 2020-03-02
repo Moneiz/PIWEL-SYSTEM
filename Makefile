@@ -18,6 +18,7 @@ objects = obj/loader.o \
 		obj/gui/widget.o \
 		obj/gui/window.o \
 		obj/gui/desktop.o \
+		obj/utils/subprgm.o \
 		obj/kernel.o
 
 run: mykernel.iso

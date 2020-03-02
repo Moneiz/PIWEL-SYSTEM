@@ -61,9 +61,17 @@ namespace drivers{
                 break;
                 case 0x02: handler->OnKeyDown('1'); break;
                 case 0x03: handler->OnKeyDown('2'); break;
+                
+                case 0x12: handler->OnKeyDown('E'); break;
+                case 0x16: handler->OnKeyDown('U'); break;
+                case 0x19: handler->OnKeyDown('P'); break;
+                case 0x20: handler->OnKeyDown('D'); break;
+                case 0x27: handler->OnKeyDown('M'); break;
+
+                case 0x1C: handler->OnKeyDown('\n'); break;
 
                 default:
-                    printfHex(key);
+                    handler->OnKeyDown('?');
                     break;
             }
         }   
