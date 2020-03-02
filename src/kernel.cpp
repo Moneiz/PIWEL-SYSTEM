@@ -18,6 +18,8 @@ using namespace drivers;
 using namespace hardwarecom;
 using namespace gui;
 
+int main();
+
 void printf(char* str){
 
 	uint16_t* video_memory = (uint16_t*) 0xB8000;
@@ -133,7 +135,7 @@ extern "C" void callConstructors(){
 	}
 }
 
-extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber){
+extern "C" void kernelMain(const void* multiboot_structure, uint32_t){
 
 	
 	printf("Initializing GDT...");
@@ -148,7 +150,8 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber){
 	printfHex((heap >> 16) & 0xFF);
 	printfHex((heap >> 8) & 0xFF);
 	printfHex((heap ) & 0xFF);
-
+	printf("\n");
+	
 	void* allocated = memoryManager.malloc(1024);
 	printf("\nallocated: 0x");
 	printfHex(((size_t)allocated >> 24) & 0xFF);

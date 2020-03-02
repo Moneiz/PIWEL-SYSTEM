@@ -134,11 +134,14 @@ namespace hardwarecom
             case 0x1022:
                 switch(dev.device_id){
                     case 0x2000:
+                    
                         driver = (amd_am79c973*)MemoryManager::activeMemoryManager->malloc(sizeof(amd_am79c973));
+                        printfHex()
                         if(driver != 0)
                             new (driver) amd_am79c973(&dev, interrupt);
                         printf("am79c973 identified !\n");
                         return driver;
+                      
                         break;
                 }
                 break;

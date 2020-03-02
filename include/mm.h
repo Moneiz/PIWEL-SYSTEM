@@ -11,7 +11,8 @@ struct MemoryChunk{
 };
 
 class MemoryManager{
-    MemoryChunk* first;
+    protected:
+        MemoryChunk* first;
     public:
         static MemoryManager *activeMemoryManager;
 

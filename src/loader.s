@@ -28,5 +28,5 @@ _stop:
 
 
 .section .bss
-.space 2*1024*1024
+.space 2*1024*1024;
 kernel_stack:

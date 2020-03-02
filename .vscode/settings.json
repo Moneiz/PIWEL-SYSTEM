@@ -1,7 +1,14 @@
 {
     "files.associations": {
         "*.tcc": "cpp",
-        "memory_resource": "cpp"
+        "memory_resource": "cpp",
+        "cstdlib": "cpp",
+        "memory": "cpp",
+        "new": "cpp",
+        "array": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "utility": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

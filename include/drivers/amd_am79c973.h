@@ -47,7 +47,7 @@ namespace drivers{
 
         BufferDescriptor* recvBufferDescr;
         common::uint8_t recvBufferDescrMemory[2048+15];
-        common::uint8_t recvBuffers[2*2048+15][8];
+        common::uint8_t recvBuffers[2*1024+15][8];
         common::uint8_t currentRecvBuffer;
 
         public:
@@ -55,7 +55,7 @@ namespace drivers{
             ~amd_am79c973();
             void Activate();
             int Reset();
-            common::uint32_t HandleInterrupt(common::uint32_t esp);
+            common::uint32_t HandlerInterrupt(common::uint32_t esp);
     };
 
 }

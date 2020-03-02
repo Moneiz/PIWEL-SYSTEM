@@ -47,10 +47,37 @@ namespace hardwarecom{
         this->taskManager = taskManager;
         uint32_t CodeSegment = gdt->CodeSegmentSelector();
         const uint8_t IDT_INTERRUPT_GATE = 0xE;
-        for(uint8_t i = 255; i > 0;i--){
+        for(uint8_t i = 255; i > 0;--i){
             handlers[i] = 0;
             SetInterruptDescriptorTableEntry(i,CodeSegment,&IgnoreInterruptRequest,0,IDT_INTERRUPT_GATE);
         }
+        SetInterruptDescriptorTableEntry(0,CodeSegment, &IgnoreInterruptRequest,0, IDT_INTERRUPT_GATE);
+        handlers[0] = 0;
+
+
+        SetInterruptDescriptorTableEntry(0x00, CodeSegment, &HandleExceptionRequest0x00,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x01, CodeSegment, &HandleExceptionRequest0x01,0, IDT_INTERRUPT_GATE);        
+        SetInterruptDescriptorTableEntry(0x02, CodeSegment, &HandleExceptionRequest0x02,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x03, CodeSegment, &HandleExceptionRequest0x03,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x04, CodeSegment, &HandleExceptionRequest0x04,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x05, CodeSegment, &HandleExceptionRequest0x05,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x06, CodeSegment, &HandleExceptionRequest0x06,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x07, CodeSegment, &HandleExceptionRequest0x07,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x08, CodeSegment, &HandleExceptionRequest0x08,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x09, CodeSegment, &HandleExceptionRequest0x09,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x0A, CodeSegment, &HandleExceptionRequest0x0A,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x0B, CodeSegment, &HandleExceptionRequest0x0B,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x0C, CodeSegment, &HandleExceptionRequest0x0C,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x0D, CodeSegment, &HandleExceptionRequest0x0D,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x0E, CodeSegment, &HandleExceptionRequest0x0E,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x0F, CodeSegment, &HandleExceptionRequest0x0F,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x10, CodeSegment, &HandleExceptionRequest0x10,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x11, CodeSegment, &HandleExceptionRequest0x11,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x12, CodeSegment, &HandleExceptionRequest0x12,0, IDT_INTERRUPT_GATE);
+        SetInterruptDescriptorTableEntry(0x13, CodeSegment, &HandleExceptionRequest0x13,0, IDT_INTERRUPT_GATE);
+
+
+
         SetInterruptDescriptorTableEntry(hardwareInterruptOffset+ 0x00,CodeSegment,&HandlerInterruptRequest0x00,0,IDT_INTERRUPT_GATE);
         SetInterruptDescriptorTableEntry(hardwareInterruptOffset+0x01,CodeSegment,&HandlerInterruptRequest0x01,0,IDT_INTERRUPT_GATE);
         SetInterruptDescriptorTableEntry(hardwareInterruptOffset+0x02,CodeSegment,&HandlerInterruptRequest0x02,0,IDT_INTERRUPT_GATE);
@@ -126,11 +153,14 @@ namespace hardwarecom{
     uint32_t InterruptManager::doHandlerInterrupt(uint8_t interruptNumber,uint32_t esp){
         
         if(handlers[interruptNumber] != 0){
+            printf("INTERUPTION GERE 0x");
+
+            printfHex(interruptNumber);
             esp = handlers[interruptNumber]->HandlerInterrupt(esp);
         }
 
         else if(interruptNumber != hardwareInterruptOffset){
-            printf("INTERUPTION NON-GÉRÉ 0x");
+            printf("INTERUPTION NON-GERE 0x");
             printfHex(interruptNumber);
         }
         if(interruptNumber == hardwareInterruptOffset){

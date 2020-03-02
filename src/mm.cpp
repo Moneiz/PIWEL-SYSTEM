@@ -4,7 +4,24 @@ using namespace common;
 
 MemoryManager* MemoryManager::activeMemoryManager = 0;
 
+static void printfHex(uint8_t);
+static void printf(char*);
 MemoryManager::MemoryManager(size_t start, size_t size){
+
+    printf("MM HEAP");
+    printfHex((start>>24) & 0xFF);
+    printfHex((start>>16) & 0xFF);
+    printfHex((start>>8) & 0xFF);
+    printfHex(start & 0xFF);
+    printf(" SIZE ");
+    printfHex((size>>24) & 0xFF);
+    printfHex((size>>16) & 0xFF);
+    printfHex((size>>8) & 0xFF);
+    printfHex(size & 0xFF);
+    printf("B\n");
+
+
+
     activeMemoryManager = this;
     if(size < sizeof(MemoryChunk)){
         first = 0;
@@ -24,7 +41,13 @@ MemoryManager::~MemoryManager(){
     }
 }
 void* MemoryManager::malloc(size_t size){
-    MemoryChunk *result;
+    printf("MALLOC OF ");
+    printfHex((size>>24) & 0xFF);
+    printfHex((size>>16) & 0xFF);
+    printfHex((size>>8) & 0xFF);
+    printfHex(size & 0xFF);
+    printf("B\n");
+    MemoryChunk *result = 0;
     for(MemoryChunk* chunk = first; chunk != 0 && result == 0; chunk = chunk->next){
         if(chunk->size > size && !chunk->allocated){
             result = chunk;
@@ -43,11 +66,18 @@ void* MemoryManager::malloc(size_t size){
         if(temp->next != 0){
             temp->next->prev = temp;
         }
-        temp->size = size;
-        temp->next = temp;
+        result->size = size;
+        result->next = temp;
     }
 
     result->allocated = true;
+
+    printf("MALLOC RETURNS ");
+    printfHex((((size_t)result) + sizeof(MemoryChunk)>>24) & 0xFF);
+    printfHex((((size_t)result) + sizeof(MemoryChunk)>>16) & 0xFF);
+    printfHex((((size_t)result) + sizeof(MemoryChunk)>>8) & 0xFF);
+    printfHex(((size_t)result) + sizeof(MemoryChunk) & 0xFF);
+    printf("B\n");
     return (void*)(((size_t)result) + sizeof(MemoryChunk));
 }
 void MemoryManager::free(void* ptr){
@@ -88,7 +118,7 @@ void* operator new[](unsigned size){
 void* operator new(unsigned size, void* ptr){
     return ptr;
 }
-void* operator new[](unsigned size, void*ptr){
+void* operator new[](unsigned size, void* ptr){
     return ptr;
 }
 void operator delete(void* ptr){

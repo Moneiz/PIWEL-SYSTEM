@@ -4,6 +4,10 @@ using namespace common;
 using namespace drivers;
 using namespace hardwarecom;
 
+
+
+void printf(char*);
+
 amd_am79c973::amd_am79c973(PCIDeviceDescriptor *dev, InterruptManager* interrupts) :
 Driver(),
 InterruptHandler(dev->interrupt + (interrupts->HardwareInterruptOffset()),interrupts ),
@@ -69,6 +73,9 @@ busControlRegisterDataPort(dev->portBase + 0x16)
     registerAddressPort.Write(2);
     registerDataPort.Write(((uint32_t)(&initBlock)>>16) & 0xFFFF);
 
+
+    printf("activated");
+
 }
 amd_am79c973::~amd_am79c973(){
 
@@ -91,9 +98,7 @@ int amd_am79c973::Reset(){
     return 10;
 }
 
-void printf(char*);
-
-uint32_t amd_am79c973::HandleInterrupt(common::uint32_t esp){
+uint32_t amd_am79c973::HandlerInterrupt(common::uint32_t esp){
     printf("INT DE AMD am79C973\n");
     
     registerAddressPort.Write(0);

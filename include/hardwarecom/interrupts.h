@@ -70,6 +70,29 @@ namespace hardwarecom{
             static void HandlerInterruptRequest0x0D();
             static void HandlerInterruptRequest0x0E();
             static void HandlerInterruptRequest0x0F();
+            static void HandlerInterruptRequest0x31();
+
+            static void HandleExceptionRequest0x00();
+            static void HandleExceptionRequest0x01();
+            static void HandleExceptionRequest0x02();
+            static void HandleExceptionRequest0x03();
+            static void HandleExceptionRequest0x04();
+            static void HandleExceptionRequest0x05();
+            static void HandleExceptionRequest0x06();
+            static void HandleExceptionRequest0x07();
+            static void HandleExceptionRequest0x08();
+            static void HandleExceptionRequest0x09();
+            static void HandleExceptionRequest0x0A();
+            static void HandleExceptionRequest0x0B();
+            static void HandleExceptionRequest0x0C();
+            static void HandleExceptionRequest0x0D();
+            static void HandleExceptionRequest0x0E();
+            static void HandleExceptionRequest0x0F();
+            static void HandleExceptionRequest0x10();
+            static void HandleExceptionRequest0x11();
+            static void HandleExceptionRequest0x12();
+            static void HandleExceptionRequest0x13();
+            
 
             static common::uint32_t handlerInterrupt(common::uint8_t interruptNumber,common::uint32_t esp);
             common::uint32_t doHandlerInterrupt(common::uint8_t interruptNumber,common::uint32_t esp);

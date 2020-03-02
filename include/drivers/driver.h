@@ -15,7 +15,7 @@ namespace drivers{
     };
     class DriverManager{
         protected:
-            Driver* drivers[255];
+            Driver* drivers[265];
             int numDrivers;
         public:
             DriverManager();
