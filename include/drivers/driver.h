@@ -15,9 +15,10 @@ namespace drivers{
     };
     class DriverManager{
         protected:
-            Driver* drivers[265];
+            
             int numDrivers;
         public:
+            Driver* drivers[265];
             DriverManager();
             void AddDriver(Driver* d);
             void ActivateAll();
