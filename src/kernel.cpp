@@ -21,6 +21,9 @@ using namespace gui;
 
 int main();
 
+char buffer[256];
+uint8_t indexBuffer=0;
+
 void printf(char* str){
 
 	uint16_t* video_memory = (uint16_t*) 0xB8000;
@@ -35,7 +38,16 @@ void printf(char* str){
 			x=0;
 			y++;
 			break;
-		
+		case 0x7F:
+			if(indexBuffer > 0){
+				x--;
+				buffer[--indexBuffer] = '\0';
+				if(x > 128){ //ouai un peu spécial
+					x = 0;
+				}
+				video_memory[80*y+x] = (video_memory[80*y+x] & 0xFF00) | ' ';
+			}
+			break;
 		default:
 			video_memory[80*y+x] = (video_memory[80*y+x]& 0xFF00) |  str[i];
 			x++;
@@ -83,14 +95,14 @@ void TaskB(){
 
 class PrintfKeyboardEventHandler : public KeyboardEventHandler{
 	public:
-	char buffer[256];
-	uint8_t indexBuffer=0;
 	void OnKeyDown(char c){
 		if(c == '\n'){
 			indexBuffer = 0;
 			utils::shell(buffer);
 			buffer[0] = '\0';
-		}else
+		}else if(c == 0x7F){
+		}
+		else
 		{
 			buffer[indexBuffer++] = c;
 			buffer[indexBuffer] = '\0';

@@ -61,7 +61,17 @@ namespace drivers{
                 break;
                 case 0x02: handler->OnKeyDown('1'); break;
                 case 0x03: handler->OnKeyDown('2'); break;
-                
+                case 0x04: handler->OnKeyDown('3'); break;
+                case 0x05: handler->OnKeyDown('4'); break;
+                case 0x06: handler->OnKeyDown('5'); break;
+                case 0x07: handler->OnKeyDown('6'); break;
+                case 0x08: handler->OnKeyDown('7'); break;
+                case 0x09: handler->OnKeyDown('8'); break;
+                case 0x0A: handler->OnKeyDown('9'); break;
+                case 0x0B: handler->OnKeyDown('0'); break;
+
+                case 0x0E: handler->OnKeyDown(0x7F); break;
+
                 case 0x12: handler->OnKeyDown('E'); break;
                 case 0x16: handler->OnKeyDown('U'); break;
                 case 0x19: handler->OnKeyDown('P'); break;
@@ -70,8 +80,23 @@ namespace drivers{
 
                 case 0x1C: handler->OnKeyDown('\n'); break;
 
+                case 0x39: handler->OnKeyDown(' '); break;
+
+                case 0x4F: handler->OnKeyDown('1'); break;
+                case 0x50: handler->OnKeyDown('2'); break;
+                case 0x51: handler->OnKeyDown('3'); break;
+                case 0x4B: handler->OnKeyDown('4'); break;
+                case 0x4C: handler->OnKeyDown('5'); break;
+                case 0x4D: handler->OnKeyDown('6'); break;
+                case 0x47: handler->OnKeyDown('7'); break;
+                case 0x48: handler->OnKeyDown('8'); break;
+                case 0x49: handler->OnKeyDown('9'); break;
+                case 0x52: handler->OnKeyDown('0'); break;
+
+
                 default:
-                    handler->OnKeyDown('?');
+                    //handler->OnKeyDown('?');
+                    printfHex(key);
                     break;
             }
         }   

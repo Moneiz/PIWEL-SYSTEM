@@ -8,20 +8,6 @@ static void printfHex(uint8_t);
 namespace utils{
 
 
-    uint16_t strcmp(char* str1, char* str2){
-        uint16_t result = 0;
-        for(uint16_t i = 0; str1[i] != '\0' || str2[i] != '\0';i++){
-            if(str1[i] < str2[i]) result += str2[i] - str1[i];
-            else if(str1[i] > str2[i]) result += str1[i] - str2[i];
-        }
-        return result;
-    }
-    uint16_t strlen(char* str){
-        uint16_t i;
-        for(i = 0;str[i] != '\0';i++){}
-        return i;
-    }
-
     void memdump(uint32_t start, uint16_t size){
 
         uint8_t* addrStart = (uint8_t*)start;
@@ -33,8 +19,21 @@ namespace utils{
 
     }
     void shell(char buffer[256]){
-        if(!strcmp(buffer, "MEMDUMP")){
-            memdump(0x00,32);
+        uint32_t params1, params2;
+        if(!strcmp(buffer, "MEMDUMP",7)){
+            params1 = str8toint32(buffer + 8);
+            params2 = str8toint32(buffer + 17);
+            printf("entrance in memdump...with ");
+            printfHex(params1 >> 24);
+            printfHex(params1 >> 16);
+            printfHex(params1 >> 8);
+            printfHex(params1);
+            printf(" size : ");
+            printfHex(params2 >> 24);
+            printfHex(params2 >> 16);
+            printfHex(params2 >> 8);
+            printfHex(params2);
+            memdump(params1,params2);
         }
     }
 }
