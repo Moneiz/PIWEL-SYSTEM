@@ -72,11 +72,16 @@ namespace drivers{
 
                 case 0x0E: handler->OnKeyDown(0x7F); break;
 
+                case 0x10: handler->OnKeyDown('A'); break;
                 case 0x12: handler->OnKeyDown('E'); break;
+                case 0x13: handler->OnKeyDown('R'); break;
+                case 0x14: handler->OnKeyDown('T'); break;
                 case 0x16: handler->OnKeyDown('U'); break;
+                case 0x17: handler->OnKeyDown('I'); break;
                 case 0x19: handler->OnKeyDown('P'); break;
                 case 0x20: handler->OnKeyDown('D'); break;
-                case 0x27: handler->OnKeyDown('M'); break;
+                case 0x27: handler->OnKeyDown('M'); break; 
+                case 0x2C: handler->OnKeyDown('W'); break;
 
                 case 0x1C: handler->OnKeyDown('\n'); break;
 

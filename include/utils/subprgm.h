@@ -3,6 +3,7 @@
 
 #include <common/types.h>
 #include <utils/string.h>
+#include <drivers/ata.h>
 
 namespace utils{
 
