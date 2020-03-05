@@ -12,6 +12,7 @@
 #include <gui/window.h>
 #include <utils/subprgm.h>
 #include <drivers/amd_am79c973.h>
+#include <net/etherframe.h>
 
 //#define GRAPHMODE
 
@@ -19,6 +20,7 @@ using namespace common;
 using namespace drivers;
 using namespace hardwarecom;
 using namespace gui;
+using namespace net;
 
 int main();
 
@@ -231,7 +233,8 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t){
 	#endif
 
 	amd_am79c973* eth0 = (amd_am79c973*)(driverManager.drivers[2]);
-	eth0->Send((uint8_t*)"Test",4);
+	EtherFrameProvider etherFrame(eth0);
+	etherFrame.Send(0xFFFFFFFFFFFF, 0x0608, (uint8_t*) "Test", 4);
 
 	interrupts.Activate();
 
