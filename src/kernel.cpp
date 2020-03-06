@@ -194,11 +194,12 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t){
 
 	TaskManager taskManager;
 	
+	/*
 	Task task1(&gdt, TaskA);
 	Task task2(&gdt, TaskB);
 	taskManager.AddTask(&task1);
 	taskManager.AddTask(&task2);
-	
+	*/
 	InterruptManager interrupts(0x20, &gdt, &taskManager);
 	SyscallHandler syscalls(&interrupts,0x80);
 
