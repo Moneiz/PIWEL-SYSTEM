@@ -13,6 +13,7 @@
 #include <utils/subprgm.h>
 #include <drivers/amd_am79c973.h>
 #include <net/etherframe.h>
+#include <net/arp.h>
 
 //#define GRAPHMODE
 
@@ -230,13 +231,30 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t){
 		desktop.AddChild(&win1);
 		Window win2(&desktop, 40, 15,30,30,0x00, 0xA8, 0x00);
 		desktop.AddChild(&win2);
-	#endif
+    #endif
+
+	uint8_t ip1 = 10, ip2 = 0, ip3 = 2, ip4 = 15;
+	uint32_t ip_be = ((uint32_t) ip4 << 24)
+	        | ((uint32_t)ip3 << 16)
+	        | ((uint32_t)ip2 << 8)
+	        | ((uint32_t)ip1);
+
+    uint8_t gip1 = 10, gip2 = 0, gip3 = 2, gip4 = 1;
+    uint32_t gip_be = ((uint32_t) gip4 << 24)
+                     | ((uint32_t)gip3 << 16)
+                     | ((uint32_t)gip2 << 8)
+                     | ((uint32_t)gip1);
 
 	amd_am79c973* eth0 = (amd_am79c973*)(driverManager.drivers[2]);
+	eth0->SetIPAddress(ip_be);
+
 	EtherFrameProvider etherFrame(eth0);
-	etherFrame.Send(0xFFFFFFFFFFFF, 0x0608, (uint8_t*) "Test", 4);
+
+	AddressResolutionProtocol arp(&etherFrame);
 
 	interrupts.Activate();
+
+	arp.Resolve(gip_be);
 
 	while(1){
 		#ifdef GRAPHMODE

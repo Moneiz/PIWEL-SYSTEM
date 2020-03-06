@@ -27,7 +27,7 @@ void printfHex(uint8_t);
 amd_am79c973::amd_am79c973(PCIDeviceDescriptor *dev, InterruptManager* interrupts) :
 Driver(),
 InterruptHandler(dev->interrupt + (interrupts->HardwareInterruptOffset()),interrupts ),
-MACAddress0Port(dev->portBase),
+MACAddress0Port(dev->portBase ),
 MACAddress2Port(dev->portBase + 0x2),
 MACAddress4Port(dev->portBase + 0x4),
 registerDataPort(dev->portBase + 0x10),
@@ -40,12 +40,12 @@ busControlRegisterDataPort(dev->portBase + 0x16)
 
     this->handler = 0;
 
-    uint64_t MAC0 = MACAddress0Port.Read() % 256;
-    uint64_t MAC1 = MACAddress0Port.Read() / 256;
-    uint64_t MAC2 = MACAddress2Port.Read() % 256;
-    uint64_t MAC3 = MACAddress2Port.Read() / 256;
-    uint64_t MAC4 = MACAddress4Port.Read() % 256;
-    uint64_t MAC5 = MACAddress4Port.Read() / 256;
+    uint64_t MAC0 = MACAddress0Port.Read() & 0x00FF;
+    uint64_t MAC1 = MACAddress0Port.Read() & 0xFF00;
+    uint64_t MAC2 = MACAddress2Port.Read() & 0x00FF;
+    uint64_t MAC3 = MACAddress2Port.Read() & 0xFF00;
+    uint64_t MAC4 = MACAddress4Port.Read() & 0x00FF;
+    uint64_t MAC5 = MACAddress4Port.Read() & 0xFF00;
 
     uint64_t MAC = MAC5 << 40
                 | MAC4 << 32
@@ -143,6 +143,13 @@ void amd_am79c973::Send(uint8_t* buffer, int size){
                 src >= buffer; src--,dst--){
         *dst = *src;
     }
+
+    printf("Sending");
+    for(int i = 0; i < size; i++){
+        printfHex(buffer[i]);
+        printf(" ");
+    }
+
     sendBufferDescr[sendDescriptor].avail = 0;
     sendBufferDescr[sendDescriptor].flags2 = 0;
     sendBufferDescr[sendDescriptor].flags = 0x8300F000 | ((uint16_t)((-size) & 0xFFF));
@@ -168,6 +175,13 @@ void amd_am79c973::Receive(){
                     Send(buffer, size);
                 }
             }
+
+            size = 64;
+            for(int i = 0; i < size; i++){
+                printfHex(buffer[i]);
+                printf(" ");
+            }
+
         }
         recvBufferDescr[currentRecvBuffer].flags2 = 0;
         recvBufferDescr[currentRecvBuffer].flags = 0x8000F7FF;
@@ -180,4 +194,12 @@ void amd_am79c973::SetHandler(RawDataHandler* handler){
 
 uint64_t amd_am79c973::GetMACAddress(){
     return initBlock.physicalAddress;
+}
+
+void amd_am79c973::SetIPAddress(common::uint32_t ip) {
+    initBlock.logicalAddress = ip;
+}
+
+uint32_t amd_am79c973::GetIPAddress() {
+    return initBlock.logicalAddress;
 }
