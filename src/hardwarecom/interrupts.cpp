@@ -75,7 +75,7 @@ namespace hardwarecom{
         SetInterruptDescriptorTableEntry(0x11, CodeSegment, &HandleExceptionRequest0x11,0, IDT_INTERRUPT_GATE);
         SetInterruptDescriptorTableEntry(0x12, CodeSegment, &HandleExceptionRequest0x12,0, IDT_INTERRUPT_GATE);
         SetInterruptDescriptorTableEntry(0x13, CodeSegment, &HandleExceptionRequest0x13,0, IDT_INTERRUPT_GATE);
-
+        
 
 
         SetInterruptDescriptorTableEntry(hardwareInterruptOffset+ 0x00,CodeSegment,&HandlerInterruptRequest0x00,0,IDT_INTERRUPT_GATE);
@@ -94,6 +94,9 @@ namespace hardwarecom{
         SetInterruptDescriptorTableEntry(hardwareInterruptOffset+0x0D,CodeSegment,&HandlerInterruptRequest0x0D,0,IDT_INTERRUPT_GATE);
         SetInterruptDescriptorTableEntry(hardwareInterruptOffset+0x0E,CodeSegment,&HandlerInterruptRequest0x0E,0,IDT_INTERRUPT_GATE);
         SetInterruptDescriptorTableEntry(hardwareInterruptOffset+ 0x0F,CodeSegment,&HandlerInterruptRequest0x0F,0,IDT_INTERRUPT_GATE);
+
+        // SYSCALLS
+        SetInterruptDescriptorTableEntry(                         0x80, CodeSegment, &HandlerInterruptRequest0x80,0,IDT_INTERRUPT_GATE);
 
         picMasterCommand.Write(0X11);
         picSlaveCommand.Write(0X11);

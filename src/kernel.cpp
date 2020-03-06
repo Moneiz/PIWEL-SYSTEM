@@ -12,6 +12,7 @@
 #include <gui/window.h>
 #include <utils/subprgm.h>
 #include <drivers/amd_am79c973.h>
+#include <syscalls.h>
 #include <net/etherframe.h>
 #include <net/arp.h>
 
@@ -86,14 +87,18 @@ void printfHex(uint8_t key){
 	printf(foo);
 }
 
+void sysprintf(char* str){
+	asm("int $0x80" : : "a" (4), "b" (str));
+}
+
 void TaskA(){
 	while(true){
-		printf("A");
+		sysprintf("A");
 	}
 }
 void TaskB(){
 	while(true){
-		printf("B");
+		sysprintf("B");
 	}
 }
 
@@ -189,13 +194,15 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t){
 	printf("\n");
 
 	TaskManager taskManager;
+	
 	/*
 	Task task1(&gdt, TaskA);
 	Task task2(&gdt, TaskB);
 	taskManager.AddTask(&task1);
 	taskManager.AddTask(&task2);
-	 */
+	*/
 	InterruptManager interrupts(0x20, &gdt, &taskManager);
+	SyscallHandler syscalls(&interrupts,0x80);
 
 	#ifdef GRAPHMODE
 		Desktop desktop(320, 200, 0x00, 0x00, 0xA8);
@@ -221,7 +228,9 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t){
 		PeripheralComponentInterconnectController PCIController;
 		PCIController.SelectDrivers(&driverManager, &interrupts);
 
-		VideoGraphicsArray vga;
+		#ifdef GRAPHMODE
+			VideoGraphicsArray vga;
+		#endif
 
 		driverManager.ActivateAll();
 
