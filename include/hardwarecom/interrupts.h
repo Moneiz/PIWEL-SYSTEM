@@ -71,6 +71,7 @@ namespace hardwarecom{
             static void HandlerInterruptRequest0x0E();
             static void HandlerInterruptRequest0x0F();
             static void HandlerInterruptRequest0x31();
+            static void HandlerInterruptRequest0x80();
 
             static void HandleExceptionRequest0x00();
             static void HandleExceptionRequest0x01();
