@@ -24,6 +24,7 @@ objects = obj/loader.o \
 		obj/utils/subprgm.o \
 		obj/net/etherframe.o \
 		obj/net/arp.o \
+		obj/net/ipv4.o \
 		obj/kernel.o
 
 run: mykernel.iso
