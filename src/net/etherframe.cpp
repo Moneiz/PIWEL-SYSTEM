@@ -20,6 +20,9 @@ bool EtherFrameHandler::OnEtherFrameReceived(common::uint8_t* etherFramePayload,
 void EtherFrameHandler::Send(common::uint64_t dstMAC_BE, common::uint8_t* etherframePayload, common::uint32_t size){
     backend->Send(dstMAC_BE, etherType_BE, etherframePayload, size);
 }
+uint32_t EtherFrameHandler::GetIPAddress() {
+    return backend->GetIPAddress();
+}
 EtherFrameProvider::EtherFrameProvider(drivers::amd_am79c973* backend)
 : RawDataHandler(backend)
 {

@@ -16,6 +16,8 @@
 #include <net/etherframe.h>
 #include <net/arp.h>
 #include <net/ipv4.h>
+#include <net/icmp.h>
+#include <net/udp.h>
 
 //#define GRAPHMODE
 
@@ -87,6 +89,17 @@ void printfHex(uint8_t key){
 	foo[1] = hex[(key&0xF)];
 	printf(foo);
 }
+
+class PrintfUDPHandler : public UserDatagramProtocolHandler{
+public:
+    void HandleUserDatagramProtocolMessage(UserDatagramProtocolSocket* socket, common::uint8_t* data, common::uint16_t size){
+        char* foo = " ";
+        for(int i = 0; i < size; i++){
+            foo[0] = data[i];
+            printf(foo);
+        }
+    }
+};
 
 void sysprintf(char* str){
 	asm("int $0x80" : : "a" (4), "b" (str));
@@ -185,14 +198,6 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t){
 	printfHex((heap >> 8) & 0xFF);
 	printfHex((heap ) & 0xFF);
 	printf("\n");
-	
-	void* allocated = memoryManager.malloc(1024);
-	printf("\nallocated: 0x");
-	printfHex(((size_t)allocated >> 24) & 0xFF);
-	printfHex(((size_t)allocated >> 16) & 0xFF);
-	printfHex(((size_t)allocated >> 8) & 0xFF);
-	printfHex(((size_t)allocated ) & 0xFF);
-	printf("\n");
 
 	TaskManager taskManager;
 	
@@ -269,10 +274,17 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t){
                       | ((uint32_t)subnet1);
 
 	InternetProtocolProvider ipv4(&etherFrame,&arp,gip_be,subnet_be);
+    InternetControlMessageProtocol icmp(&ipv4);
+    UserDatagramProtocolProvider udp(&ipv4);
 
 	interrupts.Activate();
 
-	ipv4.Send(gip_be,0x0008,(uint8_t*) "hello",5);
+	arp.BroadcasMACAddress(gip_be);
+	icmp.RequestEchoReply(gip_be);
+
+	PrintfUDPHandler udphandler;
+	UserDatagramProtocolSocket* udpsocket = udp.Listen(1234);
+	udp.Bind(udpsocket, &udphandler);
 
 	while(1){
 		#ifdef GRAPHMODE

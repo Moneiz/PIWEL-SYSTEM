@@ -39,7 +39,7 @@ namespace net{
         void Send(common::uint32_t dstIP_BE, common::uint8_t* internetProtocolPayload, common::uint32_t size);
     };
 
-    class InternetProtocolProvider : EtherFrameHandler{
+    class InternetProtocolProvider : public EtherFrameHandler{
         friend class InternetProtocolHandler;
 
     protected:
