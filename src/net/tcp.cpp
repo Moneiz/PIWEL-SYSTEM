@@ -23,14 +23,16 @@ TransmissionControlProtocolSocket::~TransmissionControlProtocolSocket() {
 }
 bool TransmissionControlProtocolSocket::HandleTransmissionControlProtocolMessage(common::uint8_t *data, common::uint16_t size) {
     if(handler != 0){
-        handler->HandleTransmissionControlProtocolMessage(this, data, size);
         return handler->HandleTransmissionControlProtocolMessage(this, data, size);
     }
     return false;
 
 }
 void TransmissionControlProtocolSocket::Send(common::uint8_t *data, common::uint16_t size) {
-    backend->Send(this, data, size);
+    while(state != ESTABLISHED){
+
+    }
+    backend->Send(this, data, size, PSH | ACK);
 }
 void TransmissionControlProtocolSocket::Disconnect() {
     backend->Disconnect(this);
@@ -52,10 +54,10 @@ TransmissionControlProtocolProvider::~TransmissionControlProtocolProvider() {
 }
 
 uint32_t bigEndian32(uint32_t x){
-    return (x & 0xFF000000) >> 24
-    | (x & 0x00FF0000) >> 8
-    | (x & 0x0000FF00) << 8
-    | (x & 0x000000FF) << 24;
+    return ((x & 0xFF000000) >> 24)
+    | ((x & 0x00FF0000) >> 8)
+    | ((x & 0x0000FF00) << 8)
+    | ((x & 0x000000FF) << 24);
 }
 
 bool TransmissionControlProtocolProvider::OnInternetProtocolReceived(common::uint32_t srcIP_BE, common::uint32_t dstIP_BE, common::uint8_t *internetprotocolPayload, common::uint32_t size) {
@@ -72,7 +74,7 @@ bool TransmissionControlProtocolProvider::OnInternetProtocolReceived(common::uin
         if(sockets[i]->localPort == msg->dstPort
         && sockets[i]->localIP == dstIP_BE
         && sockets[i]->state == LISTEN
-        && ((msg->flags) & (SYN | ACK) == SYN)){
+        && (((msg->flags) & (SYN | ACK)) == SYN)){
             socket = sockets[i];
         }
         else if(sockets[i]->localPort == msg->dstPort
@@ -146,7 +148,7 @@ bool TransmissionControlProtocolProvider::OnInternetProtocolReceived(common::uin
                     return false;
                 } else if (socket->state == CLOSE_WAIT){
                     socket->state = CLOSED;
-                    return false;
+                    break;
                 }
                 if(msg->flags == ACK){
                     break;
@@ -156,7 +158,13 @@ bool TransmissionControlProtocolProvider::OnInternetProtocolReceived(common::uin
                     reset = !(socket->HandleTransmissionControlProtocolMessage(internetprotocolPayload + msg->headerSize32*4,
                             size - msg->headerSize32*4));
                     if(!reset){
-                        socket->acknowledgementNumber += size - msg->headerSize32*4;
+                        int x = 0;
+                        for(int i = msg->headerSize32*4; i < size;i++){
+                            if(internetprotocolPayload[i] != 0){
+                                x = i;
+                            }
+                        }
+                        socket->acknowledgementNumber += x - msg->headerSize32*4 + 1;
                         Send(socket, 0,0,ACK);
                     }
                 }
@@ -167,7 +175,18 @@ bool TransmissionControlProtocolProvider::OnInternetProtocolReceived(common::uin
     }
 
     if(reset){
-        return true;
+        if(socket != 0){
+            Send(socket, 0,0,RST);
+        }else{
+            TransmissionControlProtocolSocket socket(this);
+            socket.remotePort = msg->srcPort;
+            socket.remoteIP = srcIP_BE;
+            socket.localPort = msg->dstPort;
+            socket.localIP = dstIP_BE;
+            socket.sequenceNumber = bigEndian32(msg->acknowledgementNumber);
+            socket.acknowledgementNumber = bigEndian32(msg->sequenceNumber) + 1;
+            Send(&socket, 0,0,RST);
+        }
     }
 
     if(socket != 0 && socket->state == CLOSED){
@@ -195,7 +214,7 @@ void TransmissionControlProtocolProvider::Send(net::TransmissionControlProtocolS
     uint8_t* buffer2 = buffer + sizeof(TransmissionControlProtocolHeader)
                 + sizeof(TransmissionControlProtocolPseudoHeader);
 
-    msg->headerSize32 = sizeof(TransmissionControlProtocolPseudoHeader)/4;
+    msg->headerSize32 = sizeof(TransmissionControlProtocolHeader)/4;
     msg->srcPort = socket->localPort;
     msg->dstPort = socket->remotePort;
 
@@ -222,7 +241,7 @@ void TransmissionControlProtocolProvider::Send(net::TransmissionControlProtocolS
     msg->checksum = 0;
     msg->checksum = InternetProtocolProvider::Checksum((uint16_t*)buffer, lengthInclPHdr);
 
-    InternetProtocolHandler::Send(socket->remoteIP, buffer, totalLength);
+    InternetProtocolHandler::Send(socket->remoteIP, (uint8_t*)msg, totalLength);
 
     MemoryManager::activeMemoryManager->free(buffer);
 }
@@ -243,6 +262,7 @@ TransmissionControlProtocolSocket* TransmissionControlProtocolProvider::Connect(
         socket->localPort = ((socket->localPort & 0xFF00) >> 8) | ((socket->localPort & 0x00FF) << 8);
 
         sockets[numSockets++] = socket;
+        socket->state = SYN_SENT;
         socket->sequenceNumber = 0xbeefcafe;
 
         Send(socket, 0,0,SYN);

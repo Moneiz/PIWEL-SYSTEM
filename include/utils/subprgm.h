@@ -4,6 +4,7 @@
 #include <common/types.h>
 #include <utils/string.h>
 #include <drivers/ata.h>
+#include <fs/msdospart.h>
 
 namespace utils{
 
