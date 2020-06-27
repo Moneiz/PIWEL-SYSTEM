@@ -21,7 +21,7 @@ namespace drivers{
         AdvancedTechnologyAttachment(bool master, common::uint16_t portBase);
         ~AdvancedTechnologyAttachment();
         void Identify();
-        void Read28(common::uint32_t sectorNum, int count = 512);
+        void Read28(common::uint32_t sectorNum, common::uint8_t* data, int count = 512);
         void Write28(common::uint32_t sectorNum, common::uint8_t* data, common::uint32_t count);
         void Flush();
     };

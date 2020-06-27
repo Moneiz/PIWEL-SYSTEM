@@ -2,6 +2,7 @@
 
 using namespace common;
 using namespace drivers;
+using namespace fs;
 
 static void printf(char*);
 static void printfHex(uint8_t);
@@ -10,11 +11,13 @@ namespace utils{
 
 
     void write(){
+
         AdvancedTechnologyAttachment ata0m(true, 0x1F0);
         ata0m.Identify();
 
         AdvancedTechnologyAttachment ata0s(false, 0x1F0);
         ata0s.Identify();
+
         ata0s.Write28(0,(uint8_t*)"NEANTIS", 7);
         ata0s.Flush();
     }
@@ -25,8 +28,18 @@ namespace utils{
         AdvancedTechnologyAttachment ata0s(false, 0x1F0);
         ata0s.Identify();
         
-        ata0s.Read28(0);
+        //ata0s.Read28(0);
         ata0s.Flush();
+    }
+
+    void initDisk(){
+        AdvancedTechnologyAttachment ata0m(true, 0x1F0);
+        ata0m.Identify();
+
+        AdvancedTechnologyAttachment ata0s(false, 0x1F0);
+        ata0s.Identify();
+
+        MSDOSPartitionTable::ReadPartition(&ata0s);
     }
 
     void memdump(uint32_t start, uint16_t size){
@@ -61,6 +74,9 @@ namespace utils{
         }
         else if(!strcmp(buffer, "READ",4)){
             read();
+        }
+        else if(!strcmp(buffer, "EE",2)){
+            initDisk();
         }
     }
 }

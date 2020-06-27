@@ -18,6 +18,7 @@
 #include <net/ipv4.h>
 #include <net/icmp.h>
 #include <net/udp.h>
+#include <net/tcp.h>
 
 //#define GRAPHMODE
 
@@ -98,6 +99,35 @@ public:
             foo[0] = data[i];
             printf(foo);
         }
+    }
+};
+
+class PrintfTCPHandler : public TransmissionControlProtocolHandler{
+public:
+    bool HandleTransmissionControlProtocolMessage(TransmissionControlProtocolSocket* socket, common::uint8_t* data, common::uint16_t size){
+        char* foo = " ";
+        for(int i = 0; i < size; i++){
+            foo[0] = data[i];
+            printf(foo);
+        }
+
+        if(size > 9
+            && data[0] == 'G'
+            && data[1] == 'E'
+            && data[2] == 'T'
+            && data[3] == ' '
+            && data[4] == '/'
+            && data[5] == ' '
+            && data[6] == 'H'
+            && data[7] == 'T'
+            && data[8] == 'T'
+            && data[9] == 'P'
+            ){
+            socket->Send((uint8_t*)"HTTP/1.1 200 OK\r\nServer: PiwelOS\r\nContent-Type: text/html\r\n\r\nHELLO FROM PIWEL OS", 80);
+            socket->Disconnect();
+        }
+
+        return true;
     }
 };
 
@@ -247,7 +277,7 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t){
 		Window win2(&desktop, 40, 15,30,30,0x00, 0xA8, 0x00);
 		desktop.AddChild(&win2);
     #endif
-
+    /*
 	uint8_t ip1 = 10, ip2 = 0, ip3 = 2, ip4 = 15;
 	uint32_t ip_be = ((uint32_t) ip4 << 24)
 	        | ((uint32_t)ip3 << 16)
@@ -276,16 +306,18 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t){
 	InternetProtocolProvider ipv4(&etherFrame,&arp,gip_be,subnet_be);
     InternetControlMessageProtocol icmp(&ipv4);
     UserDatagramProtocolProvider udp(&ipv4);
+    TransmissionControlProtocolProvider tcp(&ipv4);
 
-	interrupts.Activate();
+
 
 	arp.BroadcasMACAddress(gip_be);
-	icmp.RequestEchoReply(gip_be);
 
-	PrintfUDPHandler udphandler;
-	UserDatagramProtocolSocket* udpsocket = udp.Listen(1234);
-	udp.Bind(udpsocket, &udphandler);
+	PrintfTCPHandler tcpHandler;
+	TransmissionControlProtocolSocket* tcpSocket = tcp.Listen(1234);
+	tcp.Bind(tcpSocket, &tcpHandler);
+    */
 
+    interrupts.Activate();
 	while(1){
 		#ifdef GRAPHMODE
 			desktop.Draw(&vga);
