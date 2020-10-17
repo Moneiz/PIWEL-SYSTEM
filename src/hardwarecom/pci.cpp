@@ -1,5 +1,6 @@
 #include <hardwarecom/pci.h>
 #include <drivers/amd_am79c973.h>
+#include <drivers/rlt8169.h>
 
 using namespace common;
 using namespace drivers;
@@ -72,7 +73,7 @@ namespace hardwarecom
                     if(driver != 0){
                         driverManager->AddDriver(driver);
                     }
-                    /*
+                    
                      printf("\nPCI BUS ");
                      printfHex(bus & 0xFF);
                      
@@ -89,7 +90,7 @@ namespace hardwarecom
                      printf(", DEVICE ");
                      printfHex((dev.device_id & 0xFF00)>>8);
                      printfHex((dev.device_id & 0xFF));
-                    */
+                    
 
                  }
              }
@@ -144,6 +145,17 @@ namespace hardwarecom
                         break;
                 }
                 break;
+            case 0x10ec:
+                switch (dev.device_id)
+                {
+                    case 0x8136:
+                        driver = (amd_am79c973*)MemoryManager::activeMemoryManager->malloc(sizeof(amd_am79c973));
+                        if(driver != 0)
+                            new (driver) amd_am79c973(&dev, interrupt);
+                        printf("RTL810xE PCI identified !\n");
+                        return driver;
+                        break;
+                }
             case 0x8086:
                 //printf("INTEL 8086");
                 break;
